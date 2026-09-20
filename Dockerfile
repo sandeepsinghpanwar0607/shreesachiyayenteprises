@@ -1,10 +1,40 @@
+# Stage 1: Build the application
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+
+# Stage 2: Run the application
+FROM eclipse-temurin:21-jre
+
+# Stage 1: Build the application
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+
+# Stage 2: Run the application
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-ARG JAR_FILE=target/*.jar
+COPY --from=build /app/target/*.jar app.jar
 
-COPY ${JAR_FILE} app.jar
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
